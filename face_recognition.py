@@ -1,13 +1,50 @@
+import os
+import shutil
+import tempfile
 import time
 from pathlib import Path
+from urllib.request import urlopen
+
 import cv2
 
 
 GENDER_LABELS = ("male", "female")
 GENDER_MODEL_MEAN = (78.4263, 87.7689, 114.8958)
 GENDER_MODEL_DIR = Path(__file__).resolve().parent / "models"
+GENDER_MODEL_URL = (
+    "https://raw.githubusercontent.com/GilLevi/AgeGenderDeepLearning/"
+    "master/models/gender_net.caffemodel"
+)
 MIN_FACE_SIZE = (48, 48)
 FACE_OVERLAP_THRESHOLD = 0.35
+
+
+def ensure_gender_model():
+    weights = GENDER_MODEL_DIR / "gender_net.caffemodel"
+    if weights.is_file():
+        return weights
+
+    GENDER_MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=GENDER_MODEL_DIR,
+            prefix=".gender_net.",
+            suffix=".download",
+            delete=False,
+        ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
+            with urlopen(GENDER_MODEL_URL, timeout=60) as response:
+                shutil.copyfileobj(response, temporary_file)
+            if temporary_file.tell() == 0:
+                raise OSError("Der heruntergeladene Gender-Modell-Download ist leer.")
+
+        os.replace(temporary_path, weights)
+    finally:
+        if temporary_path is not None and temporary_path.exists():
+            temporary_path.unlink()
+
+    return weights
 
 
 def box_iou(first, second):
