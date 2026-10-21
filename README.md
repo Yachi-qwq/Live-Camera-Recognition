@@ -16,7 +16,7 @@ Live Camera Recognition opens the first available camera in a Tkinter window, di
 
 - Python 3.10 or newer
 - A working camera
-- The model files listed below in the project's `models` directory
+- An internet connection on the first start if the gender model weights are missing
 
 From a terminal in the project directory, install the Python dependencies:
 
@@ -24,7 +24,7 @@ From a terminal in the project directory, install the Python dependencies:
 python -m pip install -r requirements.txt
 ```
 
-The application expects these model assets to already exist:
+The application uses these model assets:
 
 ```text
 models/
@@ -32,6 +32,11 @@ models/
 |-- gender_net.caffemodel
 |-- hand_landmarker.task
 ```
+
+`deploy.prototxt` and `hand_landmarker.task` must be present in `models/`.
+If `gender_net.caffemodel` is missing, the application downloads it from its
+public source into `models/` the first time face recognition is initialized.
+An internet connection is only needed for that initial download.
 
 Start the application with:
 
@@ -74,4 +79,6 @@ models/                 Local model assets used at runtime
 - This is a small computer-vision demo, not an identity, medical, or security system.
 - Haar cascades can miss profiles or poorly lit faces and may still produce false detections.
 - Face-category predictions and finger counts can be wrong, especially with occlusion or unusual poses.
-- The bundled model assets are required locally; the application does not download them.
+- The hand-landmarker and Caffe network definition assets are required locally; missing
+  gender-network weights are downloaded at first start when an internet connection is
+  available.

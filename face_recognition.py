@@ -68,7 +68,7 @@ def box_iou(first, second):
 
 def load_gender_model():
     prototxt = GENDER_MODEL_DIR / "deploy.prototxt"
-    weights = GENDER_MODEL_DIR / "gender_net.caffemodel"
+    weights = ensure_gender_model()
     for model_path in (prototxt, weights):
         if not model_path.is_file():
             raise FileNotFoundError(f"Modelldatei nicht gefunden: {model_path}")
